@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Node Editor</title>
+	<script src="ConditionManager.js"></script>
+	<script src="ConnectionManager.js"></script>
+	<script src="ContextMenuManager.js"></script>
+	<script src="GridManager.js"></script>
+	<script src="Interpreters.js"></script>
+	<script src="KeyboardShortcuts.js"></script>
+	<script src="MathOps.js"></script>
+	<script src="NodeManager.js"></script>
+	<script src="NodeOperations.js"></script>
+	<script src="NodeTypes.js"></script>
+	<script src="PanelManager.js"></script>
+	<script src="PropertyPanelManager.js"></script>
+	<script src="SaveLoadManager.js"></script>
+	<link rel="stylesheet" href="GridStyles.css">
+	<link rel="stylesheet" href="PanelStyles.css">
+	<link rel="stylesheet" href="OtherStyles.css">
+	<link rel="stylesheet" href="NodeStyles.css">
+	<link rel="stylesheet" href="ConnectionStyles.css">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+	<style>
+		html, body {
+			overflow: hidden;
+			font-family: 'Roboto', sans-serif;
+		}
+	</style>
+</head>
+<body onload="LoadNodeTypes()">
+	<div id="left-resizer" class="resizer" onmousedown="StartLeftResize()"></div>
+	<div id="right-resizer" class="resizer" onmousedown="StartRightResize()"></div>
+	<div id="left-panel" class="panel lightGrayBG left-aligned">
+		<input type="button" value="Add Condition" onclick="AddConditionVariable()">
+		<div id="condition-variables-container"></div>
+	</div>
+	<div id="right-panel" class="panel lightGrayBG right-aligned"></div>
+	<div id="grid" class="grid-container">
+		<div id="grid-lines">
+			<!--Grid Line container-->
+		</div>
+		<div class="grid-eventHandler" id="grid-eventHandler" onmousedown="MouseDownOnGrid(event)" onmousewheel="AdjustGridScale(event)" oncontextmenu="ContextMenuGrid(event)"></div>
+		<div class="grid-selectArea" id="grid-selectArea">
+			<div id="grid-selection" class="grid-selection"></div>
+		</div>
+		<svg id="grid-connections" class="grid-connections"></svg>
+		<canvas id="grid-dummy-connection" class="grid-connections" onmousedown="OnCanvasClicked(event)"></canvas>
+		<div id="grid-nodes">
+			<!--Node container-->
+		</div>
+	</div>
+	<div id="context-menu" class="contextMenu invisible"></div>
+</body>
+</html>
