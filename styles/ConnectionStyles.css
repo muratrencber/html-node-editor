@@ -1,0 +1,16 @@
+line.grid-connection
+{
+    stroke: white;
+}
+line.grid-connection.active
+{
+    stroke: yellow;
+}
+polygon.grid-connection
+{
+    fill: white;
+}
+polygon.grid-connection.active
+{
+    fill: yellow;
+}
