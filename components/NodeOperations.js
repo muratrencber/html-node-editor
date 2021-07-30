@@ -1,15 +1,61 @@
 function ChangeNodeType(select)
 {
-    let keys = Object.keys(selectedNodes);
     for(let i in selectedNodes)
     {
         let node = selectedNodes[i];
         if(node != null && node != undefined)
         {
             node.type = select.value;
-            DrawProperties();
+            if(node.type != "CustomNode")
+            {
+                node.panels = [];
+                let type = GetNodeType(select.value);
+                for(let f = 0; f < type.panels.length; f++)
+                    node.panels.push(type.panels[f]);
+            }
         }
     }
+    DrawProperties();
+}
+
+function AddPanelToNode(panelName)
+{
+    for(let i in selectedNodes)
+    {
+        let node = selectedNodes[i];
+        node.type = "CustomNode";
+        if(!node.panels.includes(panelName))
+            node.panels.push(panelName);
+    }
+    DrawProperties();
+}
+
+function ShowPanelContext(event)
+{
+    let mousePosition = new Vector2(event.pageX, event.pageY);
+    let availablePanels = [...panels];
+    for(let i in selectedNodes)
+    {
+        let node = selectedNodes[i];
+        for(let f = 0; f < node.panels.length; f++)
+        {
+            let pnl = node.panels[f];
+            let index = availablePanels.indexOf(pnl);
+            if(index >= 0 && index < availablePanels.length)
+                availablePanels.splice(index, 1);
+        }
+    }
+    if(availablePanels.length == 0)
+    {
+        console.log("No suitable panel found!");
+        return;
+    }
+    let panelFunctions = [];
+    for(let i = 0; i < availablePanels.length; i++)
+    {
+        panelFunctions.push(function() {AddPanelToNode(availablePanels[i]);});
+    }
+    OpenContextMenu(mousePosition, availablePanels, panelFunctions);
 }
 
 function AddTextToNode(textArea)
@@ -197,6 +243,7 @@ class SavedNode
         this.type = node.type;
         this.position = new Vector2(node.position.x, node.position.y);
         this.additionalInfo = {...node.additionalInfo};
+        this.panels = [...node.panels];
     }
 }
 var savedNodes = [];
@@ -222,9 +269,106 @@ function PasteSelectedNodes()
         let name = GetLegalNodeName(snode.name);
         let node = new Node(name, snode.type, snode.position.Plus(pasteOffset));
         node.additionalInfo = {...snode.additionalInfo};
+        node.panels = [...snode.panels];
         nodes[name] = node;
         selectedNodes[name] = node;
     }
     DrawAllGrid();
+    DrawProperties();
+}
+
+function AddNodeChange()
+{
+    let keys = Object.keys(selectedNodes);
+    let lastNode = selectedNodes[keys[keys.length - 1]];
+
+    let count = lastNode.GetAdditionalInfo("nodechange-count") | 0;
+    lastNode.SetAdditionalInfo("nodechange-name-"+count, lastNode.name);
+    lastNode.SetAdditionalInfo("nodechange-value-"+count, "");
+
+    count += 1;
+    lastNode.SetAdditionalInfo("nodechange-count", count);
+
+    SyncNodeChanges();
+    DrawProperties();
+}
+
+function RemoveNodeChange(element)
+{
+    let index = element.getAttribute("order");
+    
+    let keys = Object.keys(selectedNodes);
+    let lastNode = selectedNodes[keys[keys.length - 1]];
+
+    let count = lastNode.GetAdditionalInfo("nodechange-count") | 0;
+    for(let i = index + 1; i < count; i++)
+    {
+        let currentName = node.GetAdditionalInfo("nodechange-name-"+i);
+        let currentValue = node.GetAdditionalInfo("nodechange-value-"+i);
+
+        lastNode.SetAdditionalInfo("nodechange-name-"+(i-1), currentName);
+        lastNode.SetAdditionalInfo("nodechange-value-"+(i-1), currentValue);
+    }
+    lastNode.DeleteAdditionalInfo("nodechange-name-"+(count - 1));
+    lastNode.DeleteAdditionalInfo("nodechange-value-"+(count - 1));
+    lastNode.SetAdditionalInfo("nodechange-count", count - 1);
+
+    SyncNodeChanges();
+    DrawProperties();
+}
+
+function AlterNodeChange(element)
+{
+    let index = element.getAttribute("order");
+    let selectField = document.getElementById("nodechange-select-"+index);
+    let textField = document.getElementById("nodechange-textarea-"+index);
+
+    let keys = Object.keys(selectedNodes);
+    let lastNode = selectedNodes[keys[keys.length - 1]];
+
+    lastNode.SetAdditionalInfo("nodechange-name-"+index, selectField.value);
+    lastNode.SetAdditionalInfo("nodechange-value-"+index, textField.value);
+
+    SyncNodeChanges();
+    DrawProperties();
+}
+
+function SyncNodeChanges()
+{
+    let keys = Object.keys(selectedNodes);
+    let lastNode = selectedNodes[keys[keys.length - 1]];
+    let lNCount = lastNode.GetAdditionalInfo("nodechange-count");
+    if(lNCount == undefined)
+        lNCount = 0;
+    for(let i in selectedNodes)
+    {
+        let node = selectedNodes[i];
+        if(node == lastNode)
+            continue;
+        let count = node.GetAdditionalInfo("nodechange-count");
+        if(count == undefined)
+            count = 0;
+        for(let f = lNCount; f < count; f++)
+        {
+            node.DeleteAdditionalInfo("nodechange-name-"+f);
+            node.DeleteAdditionalInfo("nodechange-value-"+f);
+        }
+        for(let f= 0; f < lNCount; f++)
+        {
+            let name = lastNode.GetAdditionalInfo("nodechange-name-"+f);
+            let value = lastNode.GetAdditionalInfo("nodechange-value-"+f);
+
+            node.SetAdditionalInfo("nodechange-name-"+f, name);
+            node.SetAdditionalInfo("nodechange-value-"+f, name);
+        }
+        node.SetAdditionalInfo("nodechange-count", lNCount);
+    }
+}
+
+function ChangeNodeTags(select)
+{
+    let tag = select.value;
+    for(let i in selectedNodes)
+        selectedNodes[i].SetAdditionalInfo("tag", tag);
     DrawProperties();
 }

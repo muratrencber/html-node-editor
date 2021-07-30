@@ -18,6 +18,7 @@ class SerializedNode
         this.type = node.type;
         this.additionalInfo = node.additionalInfo;
         this.position = node.position;
+        this.panels = node.panels;
 
         this.connectionsTo = [];
         for(let i = 0; i < node.connectionsTo.length; i++)
@@ -91,6 +92,8 @@ function LoadFile()
                 let serializedNode = serializedStatus.nodes[i];
                 nodes[i] = new Node(serializedNode.name, serializedNode.type, new Vector2(serializedNode.position.x, serializedNode.position.y));
                 nodes[i].additionalInfo = serializedNode.additionalInfo;
+                nodes[i].panels = serializedNode.panels;
+                nodes[i].RefreshPanels();
             }
 
             connections = {};

@@ -4,6 +4,9 @@
 //text-field
 //variable-changer
 
+var panels = ["name-field", "type-changer", "text-field", "variable-changer", "node-text-changer", "tags"];
+var nodeTags = ["dialogue-node", "panel-node"]
+
 const nodeTypesText =
 `DefaultNode
 {

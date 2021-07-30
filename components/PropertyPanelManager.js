@@ -110,10 +110,7 @@ function DrawNodeProperties(nodes)
     let panels = [];
     if(keys.length == 1)
     {
-        nodeType = GetNodeType(node.type);
-        if(nodeType == null)
-            nodeType = defaultNodeType;
-        panels = nodeType.panels;
+        panels = node.panels;
     }
     else
     {
@@ -124,15 +121,12 @@ function DrawNodeProperties(nodes)
         for(let i in selectedNodes)
         {
             let n = selectedNodes[i];
-            let nt = GetNodeType(n.type);
-            if(nt == null)
-                nt = defaultNodeType;
-            for(let f = 0; f < nt.panels.length; f++)
+            for(let f = 0; f < n.panels.length; f++)
             {
-                if(panelCounts[nt.panels[f]] == undefined)
-                    panelCounts[nt.panels[f]] = 1;
+                if(panelCounts[n.panels[f]] == undefined)
+                    panelCounts[n.panels[f]] = 1;
                 else
-                    panelCounts[nt.panels[f]] += 1;
+                    panelCounts[n.panels[f]] += 1;
             }
         }
         for(let i in panelCounts)
@@ -150,6 +144,12 @@ function DrawNodeProperties(nodes)
             rightPanel.appendChild(newPanel);
         }
     }
+
+    let addPanelButton = document.createElement("button");
+    addPanelButton.innerHTML = "Add New Panel";
+    addPanelButton.setAttribute("onclick", "ShowPanelContext(event)");
+
+    rightPanel.appendChild(addPanelButton);
 }
 
 function CreateCustomPanel(node, panelKey)
@@ -174,11 +174,13 @@ function CreateCustomPanel(node, panelKey)
         label.innerHTML = "Node Type:";
         let select = document.createElement("select");
         select.setAttribute("node-name", node.name);
-        for(let i = 0; i < nodeTypes.length; i++)
+        let types = [...nodeTypes];
+        types.push(new NodeType("CustomNode", []));
+        for(let i = 0; i < types.length; i++)
         {
             let option = document.createElement("option");
-            option.value = nodeTypes[i].name;
-            option.innerHTML = nodeTypes[i].name;
+            option.value = types[i].name;
+            option.innerHTML = types[i].name;
             select.appendChild(option);
         }
         select.value = node.type;
@@ -266,6 +268,77 @@ function CreateCustomPanel(node, panelKey)
         addButton.setAttribute("node-name", node.name);
         addButton.setAttribute("onclick", "IncreaseVarCount(this)");
         divWrapper.appendChild(addButton);
+    }
+    else if(panelKey == "node-text-changer")
+    {
+        let label = document.createElement("h4");
+        label.innerHTML = "Node Text Changer";
+        divWrapper.appendChild(label);
+
+        let itemCount = node.GetAdditionalInfo("nodechange-count");
+        if(itemCount == undefined)
+            itemCount = 0;
+
+        for(let i = 0; i < itemCount; i++)
+        {
+            let nodeLabel = document.createElement("h4");
+            nodeLabel.innerHTML = "Select Node";
+
+            let nodeSelect = document.createElement("select");
+            nodeSelect.id = "nodechange-select-"+i;
+            for(let f in nodes)
+            {
+                let option = document.createElement("option");
+                option.value = nodes[f].name;
+                option.innerHTML = nodes[f].name;
+                nodeSelect.appendChild(option);
+            }
+            nodeSelect.value = node.GetAdditionalInfo("nodechange-name-"+i);
+            nodeSelect.setAttribute("order", i);
+            nodeSelect.setAttribute("onchange", "AlterNodeChange(this)");
+
+            let textArea = document.createElement("textarea");
+            textArea.id = "nodechange-textarea-"+i;
+            textArea.value = node.GetAdditionalInfo("nodechange-value-"+i);
+            textArea.setAttribute("order",i);
+            textArea.setAttribute("onchange", "AlterNodeChange(this)");
+
+            let button = document.createElement("button");
+            button.innerHTML = "Remove";
+            button.setAttribute("order", i);
+            button.className = "remove-button";
+            button.setAttribute("onclick", "RemoveNodeChange(this)");
+
+            divWrapper.appendChild(nodeLabel);
+            divWrapper.appendChild(nodeSelect);
+            divWrapper.appendChild(textArea);
+            divWrapper.appendChild(button);
+        }
+
+        let addButton = document.createElement("button");
+        addButton.innerHTML = "Add";
+        addButton.setAttribute("onclick", "AddNodeChange()");
+        divWrapper.appendChild(addButton);
+    }
+    else if(panelKey == "tags")
+    {
+        let label = document.createElement("h4");
+        label.innerHTML = "Select a tag";
+        divWrapper.appendChild(label);
+
+        let select = document.createElement("select");
+        for(let i = 0; i < nodeTags.length; i++)
+        {
+            let op = document.createElement("option");
+            op.value = nodeTags[i];
+            op.innerHTML = nodeTags[i];
+            select.appendChild(op);
+        }
+        let tag = node.GetAdditionalInfo("tag");
+        if(tag)
+            select.value = tag;
+        select.setAttribute("onchange", "ChangeNodeTags(this)");
+        divWrapper.appendChild(select);
     }
     else
     {

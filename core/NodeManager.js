@@ -14,6 +14,11 @@ function LoadNodeTypes()
         if(defText.trim() == "")
             continue;
         let defName = defText.split("{")[0].trim();
+        if(defName == "CustomNode")
+        {
+            console.error("Type name \"CustomNode\" cannot be used!");
+            continue;
+        }
         let defPanels = defText.split("{")[1].split("}")[0].split(";");
         for(let f = 0; f < defPanels.length; f++)
             defPanels[f] = defPanels[f].trim();
@@ -55,6 +60,24 @@ class Node
         this.additionalInfo = {};
         this.HTMLGridElement = null;
         this.position = position;
+        let t = GetNodeType(this.type);
+        if(t == null || t == undefined)
+            t = defaultNodeType;
+        this.panels = [];
+        for(let i = 0; i < t.panels.length; i++)
+            this.panels.push(t.panels[i]);
+    }
+
+    RefreshPanels()
+    {
+        let type = GetNodeType(type);
+        if(type == null || type == undefined)
+            type = defaultNodeType;
+        if(type == "CustomNode")
+            return;
+        this.panels = [];
+        for(let i = 0; i < type.panels.length; i++)
+            this.panels.push(type.panels[i]);
     }
 
     SetAdditionalInfo(key, value)
