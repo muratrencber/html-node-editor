@@ -139,6 +139,17 @@ function DrawNodeProperties(nodes)
     for(let i = 0; i < panels.length; i++)
     {
         let newPanel = CreateCustomPanel(node, panels[i]);
+        if(!nonRemoveablePanels.includes(panels[i]))
+        {
+            let removeButton = document.createElement("button");
+            removeButton.setAttribute("panel-name", panels[i]);
+            removeButton.setAttribute("onclick", "RemovePanelFromNode(this)");
+            removeButton.className="remove-button";
+            removeButton.innerHTML = "Remove Panel";
+            newPanel.appendChild(document.createElement("br"));
+            newPanel.appendChild(document.createElement("br"));
+            newPanel.appendChild(removeButton);
+        }
         if(newPanel != null)
         {
             rightPanel.appendChild(newPanel);

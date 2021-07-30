@@ -30,6 +30,20 @@ function AddPanelToNode(panelName)
     DrawProperties();
 }
 
+function RemovePanelFromNode(element)
+{
+    let panelName = element.getAttribute("panel-name");
+    for(let i in selectedNodes)
+    {
+        let node = selectedNodes[i];
+        node.type = "CustomNode";
+        let index = node.panels.indexOf(panelName);
+        if(index >= 0 && index < node.panels.length)
+            node.panels.splice(index, 1);
+    }
+    DrawProperties();
+}
+
 function ShowPanelContext(event)
 {
     let mousePosition = new Vector2(event.pageX, event.pageY);
