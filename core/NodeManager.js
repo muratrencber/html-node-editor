@@ -70,14 +70,14 @@ class Node
 
     RefreshPanels()
     {
-        let type = GetNodeType(type);
-        if(type == null || type == undefined)
-            type = defaultNodeType;
+        let t = GetNodeType(this.type);
+        if(t == null || t == undefined)
+            t = defaultNodeType;
         if(type == "CustomNode")
             return;
-        this.panels = [];
-        for(let i = 0; i < type.panels.length; i++)
-            this.panels.push(type.panels[i]);
+            this.panels = [];
+            for(let i = 0; i < t.panels.length; i++)
+                this.panels.push(t.panels[i]);
     }
 
     SetAdditionalInfo(key, value)
