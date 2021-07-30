@@ -73,11 +73,11 @@ class Node
         let t = GetNodeType(this.type);
         if(t == null || t == undefined)
             t = defaultNodeType;
-        if(type == "CustomNode")
+        if(this.type == "CustomNode")
             return;
-            this.panels = [];
-            for(let i = 0; i < t.panels.length; i++)
-                this.panels.push(t.panels[i]);
+        this.panels = [];
+        for(let i = 0; i < t.panels.length; i++)
+            this.panels.push(t.panels[i]);
     }
 
     SetAdditionalInfo(key, value)

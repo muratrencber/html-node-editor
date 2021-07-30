@@ -92,7 +92,7 @@ function LoadFile()
                 let serializedNode = serializedStatus.nodes[i];
                 nodes[i] = new Node(serializedNode.name, serializedNode.type, new Vector2(serializedNode.position.x, serializedNode.position.y));
                 nodes[i].additionalInfo = serializedNode.additionalInfo;
-                nodes[i].panels = serializedNode.panels;
+                nodes[i].panels = [...serializedNode.panels];
                 nodes[i].RefreshPanels();
             }
 
