@@ -3,6 +3,8 @@
 //type-changer
 //text-field
 //variable-changer
+//node-text-changer
+//tags
 
 var panels = ["name-field", "type-changer", "text-field", "variable-changer", "node-text-changer", "tags"];
 var nodeTags = ["dialogue-node", "panel-node"]

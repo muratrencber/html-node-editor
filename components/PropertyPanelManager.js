@@ -348,6 +348,8 @@ function CreateCustomPanel(node, panelKey)
         let tag = node.GetAdditionalInfo("tag");
         if(tag)
             select.value = tag;
+        else
+            node.SetAdditionalInfo("tag", nodeTags[0]);
         select.setAttribute("onchange", "ChangeNodeTags(this)");
         divWrapper.appendChild(select);
     }

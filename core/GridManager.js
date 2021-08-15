@@ -48,6 +48,7 @@ function DrawGridLines()
 }
 
 var defaultNodeScale = new Vector2(180,80); 
+var defaultConnectionButtonScale = new Vector2(20,80); 
 function DrawGridNodes()
 {
     let gridCanvas = document.getElementById("grid-connections");
@@ -57,6 +58,7 @@ function DrawGridNodes()
 
     let adjustedOffset = offset.Scale(scale);
     let adjustedScale = defaultNodeScale.Scale(scale);
+    let adjustedButtonScale = defaultConnectionButtonScale.Scale(scale);
 
     let nodeContainer = document.getElementById("grid-nodes");
     nodeContainer.innerHTML = "";
@@ -66,7 +68,9 @@ function DrawGridNodes()
         if(currentNode == null)
             continue;
         let adjustedNodePosition = currentNode.position.Scale(scale).Plus(adjustedOffset);
-        nodeContainer.appendChild(currentNode.DrawHTMLGrid(adjustedNodePosition, adjustedScale));
+        let elements = currentNode.DrawHTMLGrid(adjustedNodePosition, adjustedScale, adjustedButtonScale);
+        for(let j = 0; j < elements.length; j++)
+            nodeContainer.appendChild(elements[j]);
     }
 }
 

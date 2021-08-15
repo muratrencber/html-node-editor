@@ -51,20 +51,26 @@ function PanelScriptInterpreter()
     for(let i in nodes)
     {
         let n = nodes[i];
-        if(n.type != "DefaultNode")
+        let tag = n.GetAdditionalInfo("tag");
+        if(tag != "panel-node")
             continue;
         result += "<PANEL id=\""+n.name+"\">\n";
         for(let j = 0; j < n.connectionsTo.length; j++)
         {
             let con = n.connectionsTo[j];
             let dn = con.toNode;
-            if(dn.type != "DialogueNode" && dn.type != "DialogueNodeWithEffects")
+            let dntag = dn.GetAdditionalInfo("tag");
+            if(dntag == undefined && dn.panels.includes("tags"))
+                dntag = nodeTags[0];
+            console.log(dntag);
+            if(dntag != "dialogue-node")
                 continue;
             let nextN = null;
             for(let k = 0; k < dn.connectionsTo.length; k++)
             {
                 let con2 = dn.connectionsTo[k];
-                if(con2.toNode.type == "DefaultNode")
+                let con2Tag = con2.toNode.GetAdditionalInfo("tag");
+                if(con2Tag == "panel-node")
                 {
                     nextN = con2.toNode;
                     break;
@@ -78,7 +84,7 @@ function PanelScriptInterpreter()
                 result += "<condition name=\""+cond.targetName+"\" target=\""+cond.targetValue+"\" type=\""+cond.conditionType+"\">\n";
             }
             result += "<option id=\""+nextN.name+"\">"+dn.GetAdditionalInfo("text");
-            if(dn.type == "DialogueNodeWithEffects")
+            if(dn.panels.includes("variable-changer"))
             {
                 result += "\n";
                 let cCount = dn.GetAdditionalInfo("varchange-count");
@@ -88,7 +94,20 @@ function PanelScriptInterpreter()
                     let val = dn.GetAdditionalInfo("varchange-target-"+k);
                     if(val == undefined || name == undefined)
                         break;
-                    result += "<result name=\""+name+"\" value=\""+val+"\"></result>\n";
+                    result += "<result type=\"change-variable\" name=\""+name+"\" value=\""+val+"\"></result>\n";
+                }
+            }
+            if(dn.panels.includes("node-text-changer"))
+            {
+                result += "\n";
+                let cCount = dn.GetAdditionalInfo("nodechange-count");
+                for(let k = 0; k < cCount; k++)
+                {
+                    let name = dn.GetAdditionalInfo("nodechange-name-"+k);
+                    let val = dn.GetAdditionalInfo("nodechange-value-"+k);
+                    if(val == undefined || name == undefined)
+                        break;
+                    result += "<result type=\"change-node-text\" name=\""+name+"\" value=\""+val+"\"></result>\n";
                 }
             }
             result += "</option>\n";
@@ -99,5 +118,5 @@ function PanelScriptInterpreter()
         }
         result += "</PANEL>\n\n";
     }
-    return {"result": result, "extension": ".ps"};
+    return {"result": result, "extension": ".pnsc"};
 }

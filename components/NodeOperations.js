@@ -40,6 +40,30 @@ function RemovePanelFromNode(element)
         let index = node.panels.indexOf(panelName);
         if(index >= 0 && index < node.panels.length)
             node.panels.splice(index, 1);
+        if(panelName == "tag")
+            node.DeleteAdditionalInfo("tag");
+        else if(panelName == "text-field")
+            node.DeleteAdditionalInfo("text");
+        else if(panelName == "variable-changer")
+        {
+            let count = node.GetAdditionalInfo("varchange-count") | 0;
+            for(let i = 0; i < count; i++)
+            {
+                node.DeleteAdditionalInfo("varchange-name-"+i);
+                node.DeleteAdditionalInfo("varchange-target-"+i);
+            }
+            node.DeleteAdditionalInfo("varchange-count");
+        }
+        else if(panelName == "node-text-changer")
+        {
+            let count = node.GetAdditionalInfo("nodechange-count") | 0;
+            for(let i = 0; i < count; i++)
+            {
+                node.DeleteAdditionalInfo("nodechange-name-"+i);
+                node.DeleteAdditionalInfo("nodechange-value-"+i);
+            }
+            node.DeleteAdditionalInfo("nodechange-count");
+        }
     }
     DrawProperties();
 }
