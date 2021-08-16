@@ -74,7 +74,6 @@ class Node
     constructor(name, type, position)
     {
         this.name = name;
-        this.type = type;
         this.connectionsTo = [];
         this.connectionsFrom = [];
         this.additionalInfo = {};
@@ -82,12 +81,25 @@ class Node
         this.HTMLLeftButton = null;
         this.HTMLRightButton = null;
         this.position = position;
-        let t = GetNodeType(this.type);
-        if(t == null || t == undefined)
-            t = defaultNodeType;
-        this.panels = [];
-        for(let i = 0; i < t.panels.length; i++)
-            this.panels.push(t.panels[i]);
+        this.SetType(type);
+    }
+
+    SetType(typeName)
+    {
+        if(typeName == "CustomNode")
+        {
+            this.type = typeName;
+            return;
+        }
+        else
+        {
+            let t = GetNodeType(typeName);
+            if(t == null || t == undefined)
+                t = defaultNodeType;
+            this.type = t.name;
+            this.defaultConnectionType = t.defaultConnectionType;
+            this.RefreshPanels();
+        }
     }
 
     RefreshPanels()
@@ -360,12 +372,14 @@ function StartNodeConnectionFromButton(event)
     contextId = event.target.getAttribute("node-name");
     event.stopPropagation();
     event.preventDefault();
+    HideContextMenu();
     connectionFromNode = FindNodeWithName(contextId);
     if(connectionFromNode)
     {
         connectingNodes = true;
         connectionStartPos = connectionFromNode.position;
         document.addEventListener("mouseup", EndConnection);
+        document.addEventListener("mousedown", EndConnection);
         document.addEventListener("mousemove", DrawDummyConnection);
     }
     else
@@ -397,11 +411,24 @@ function EndConnection(event)
     document.removeEventListener("mouseup", EndConnection);
     connectingNodes = false;
     let connectionToNode = GetNodeInBounds(event);
-    if(connectionToNode != null && connectionFromNode != null && connectionFromNode.name != connectionToNode.name)
+    if(connectionFromNode != null)
     {
-        if(connections[connectionFromNode.name+"->"+connectionToNode.name] != null)
-            return;
-        CreateConnection(connectionFromNode, connectionToNode);
+        if(connectionToNode != null && connectionFromNode.name != connectionToNode.name)
+        {
+            if(connections[connectionFromNode.name+"->"+connectionToNode.name] != null)
+                return;
+            CreateConnection(connectionFromNode, connectionToNode);
+        }
+        else if(connectionToNode == null)
+        {
+            connectingNodes = true;
+            contextMenuPosition = new Vector2(event.pageX, event.pageY);
+            let t = GetNodeType(connectionFromNode.defaultConnectionType);
+            if(t != null)
+                CreateNode(connectionFromNode.defaultConnectionType);
+            else
+                OpenNodeContext();
+        }
     }
     DrawAllGrid();
 }

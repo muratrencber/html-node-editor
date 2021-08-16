@@ -74,6 +74,7 @@ function HideContextMenu()
         avoidHiding = false;
         return;
     }
+    connectingNodes = false;
     let contextMenuItem = document.getElementById("context-menu");
     contextMenuItem.className="contextMenu invisible";
 }

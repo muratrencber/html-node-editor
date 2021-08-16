@@ -5,14 +5,15 @@ function ChangeNodeType(select)
         let node = selectedNodes[i];
         if(node != null && node != undefined)
         {
-            node.type = select.value;
+            node.SetType(select.value);
+            /*node.type = select.value;
             if(node.type != "CustomNode")
             {
                 node.panels = [];
                 let type = GetNodeType(select.value);
                 for(let f = 0; f < type.panels.length; f++)
                     node.panels.push(type.panels[f]);
-            }
+            }*/
         }
     }
     DrawProperties();

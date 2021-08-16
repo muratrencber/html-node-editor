@@ -262,6 +262,14 @@ function CreateNode(type)
     nodeName = currentNodeName;
     let newNode = new Node(nodeName, type, GetUnadjustedPosition(contextMenuPosition));
     nodes[nodeName] = newNode;
+    if(connectingNodes)
+    {
+        connectingNodes = false;
+        if(connectionFromNode != null)
+        {
+            CreateConnection(connectionFromNode, newNode);
+        }
+    }
     DrawAllGrid();
 }
 
