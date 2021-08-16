@@ -8,6 +8,22 @@ function LoadNodeTypes()
 {
     nodeTypes = [];
     defaultNodeType = null;
+
+    for(let i in nodeTypesDict)
+    {
+        if(forbiddenTypeNames.includes(i))
+        {
+            console.warn("You cannot use \""+ i + "\" as a type name!");
+            continue;
+        }
+        let t = nodeTypesDict[i];
+        let newType = new NodeType(i, t["panels"], t["tag"], t["default-connection-node-type"], t["default-child-node-type"]);
+        nodeTypes.push(newType);
+        if(defaultNodeType == null)
+            defaultNodeType = newType;
+    }
+
+    /* OLD WAY
     let defs = nodeTypesText.split(",");
     for(let i = 0; i < defs.length; i++)
     {
@@ -28,7 +44,7 @@ function LoadNodeTypes()
         nodeTypes.push(newType);
         if(defaultNodeType == null)
             defaultNodeType = newType;
-    }
+    }*/
 }
 
 function GetNodeType(typeKey)
@@ -43,10 +59,13 @@ function GetNodeType(typeKey)
 
 class NodeType
 {
-    constructor(name, panels)
+    constructor(name, panels, tag, defaultConnectionType, defaultChildType)
     {
         this.name = name;
         this.panels = panels;
+        this.tag = tag;
+        this.defaultConnectionType = defaultConnectionType;
+        this.defaultChildType = defaultChildType;
     }
 }
 
