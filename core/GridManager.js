@@ -65,12 +65,13 @@ function DrawGridNodes()
     for(let i in nodes)
     {
         let currentNode = nodes[i];
-        if(currentNode == null)
+        if(currentNode == null || currentNode.isChild)
             continue;
         let adjustedNodePosition = currentNode.position.Scale(scale).Plus(adjustedOffset);
         let elements = currentNode.DrawHTMLGrid(adjustedNodePosition, adjustedScale, adjustedButtonScale);
         for(let j = 0; j < elements.length; j++)
             nodeContainer.appendChild(elements[j]);
+        currentNode.RefreshConButtonsAndPositions(nodeContainer, adjustedButtonScale);
     }
 }
 
@@ -80,6 +81,7 @@ function DrawDummyConnection(event)
     gridCanvas.width = window.innerWidth;
     gridCanvas.height = window.innerHeight;
     gridCanvas.innerHTML = "";
+    //console.log(connectingNodes +", " + connectionFromNode);
     if(connectingNodes == false || connectionFromNode == null ||event == null)
         return;
     let startPosition = GetAdjustedPosition(connectionFromNode.position);
@@ -270,6 +272,18 @@ function CreateNode(type)
             CreateConnection(connectionFromNode, newNode);
         }
     }
+    DrawAllGrid();
+}
+
+function CreateChildNode(parent, type)
+{
+    let nodeName = ConvertNodeName(parent.name+" child");
+    nodeName = GetLegalNodeName(nodeName);
+    let childNode = new Node(nodeName, type, GetUnadjustedPosition(contextMenuPosition));
+    nodes[nodeName] = childNode;
+    childNode.parent = parent;
+    childNode.isChild = true;
+    parent.children.push(childNode);
     DrawAllGrid();
 }
 

@@ -74,21 +74,22 @@ function HideContextMenu()
         avoidHiding = false;
         return;
     }
-    connectingNodes = false;
+    document.body.removeEventListener("mousedown", CheckClickForContextMenu);
     let contextMenuItem = document.getElementById("context-menu");
     contextMenuItem.className="contextMenu invisible";
 }
 function CheckClickForContextMenu(event)
 {
+    //console.log("Check Context Menu");
     let mousePosition = new Vector2(event.pageX, event.pageY);
     let contextMenuItem = document.getElementById("context-menu");
     let menuDOMRect = contextMenuItem.getBoundingClientRect();
     let menuRect = new Rect(new Vector2(menuDOMRect.x, menuDOMRect.y), new Vector2(menuDOMRect.width, menuDOMRect.height));
     let inBounds = menuRect.Contains(mousePosition);
+    //console.log("MENURECT: "+menuRect.ToString()+", MOUSEPOS: "+ mousePosition.ToString()+", INBOUNDS: "+inBounds);
     if(!inBounds)
     {
         event.preventDefault();
-        document.body.removeEventListener("mousedown", CheckClickForContextMenu);
         HideContextMenu();
     }
 }

@@ -36,6 +36,12 @@ class Vector2
         return new Vector2(this.x/length, this.y/length);
     }
 
+    ToString()
+    {
+        let str = "("+this.x+", "+this.y+")";
+        return str;
+    }
+
     static Negative(target)
     {
         return new Vector2(-target.x, -target.y);
@@ -97,5 +103,10 @@ class Rect
         else if (this.Contains(otherRect.TopRight()))
             return true;
         return false;
+    }
+    ToString()
+    {
+        let str = "(x: "+this.topLeft.x+", y: "+this.topLeft.y+", width: "+this.scale.x+", height: "+this.scale.y+")";
+        return str; 
     }
 }

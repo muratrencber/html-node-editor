@@ -16,6 +16,9 @@ class SerializedNode
     {
         this.name = node.name;
         this.type = node.type;
+        this.isChild = node.isChild;
+        this.defaultConnectionType = node.defaultConnectionType;
+        this.defaultChildType = node.defaultChildType;
         this.additionalInfo = node.additionalInfo;
         this.position = node.position;
         this.panels = node.panels;
@@ -28,6 +31,9 @@ class SerializedNode
         for(let i = 0; i < node.connectionsFrom.length; i++)
             this.connectionsFrom.push(node.connectionsFrom[i].GetName());
 
+        this.children = [];
+        for(let i = 0; i < node.children.length; i++)
+            this.children.push(node.children[i].name);
     }
 }
 
@@ -92,8 +98,25 @@ function LoadFile()
                 let serializedNode = serializedStatus.nodes[i];
                 nodes[i] = new Node(serializedNode.name, serializedNode.type, new Vector2(serializedNode.position.x, serializedNode.position.y));
                 nodes[i].additionalInfo = serializedNode.additionalInfo;
+                nodes[i].isChild = serializedNode.isChild;
+                nodes[i].defaultConnectionType = serializedNode.defaultConnectionType;
+                nodes[i].defaultChildType = serializedNode.defaultChildType;
                 nodes[i].panels = [...serializedNode.panels];
                 nodes[i].RefreshPanels();
+            }
+
+            for(let i in serializedStatus.nodes)
+            {
+                let serializedNode = serializedStatus.nodes[i];
+                for(let j = 0; j < serializedNode.children.length; j++)
+                {
+                    let child = nodes[serializedNode.children[j]];
+                    if(child != null && child != undefined)
+                    {
+                        nodes[i].children.push(child);
+                        child.parent = nodes[i];
+                    }
+                }
             }
 
             connections = {};

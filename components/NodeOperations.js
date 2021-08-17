@@ -254,6 +254,26 @@ function RemoveSelectedNodes()
     {
         let node = selectedNodes[i];
         contextId = node.name;
+        if(node.isChild)
+        {
+            let parent = node.parent;
+            if(nodes[node.parent.name] == parent)
+            {
+                let targetIndex = parent.children.indexOf(node);
+                console.log(targetIndex);
+                if(targetIndex != -1)
+                    parent.children.splice(targetIndex, 1);
+            }
+        }
+        else
+        {
+            for(let i = 0; i < node.children.length; i++)
+            {
+                contextId = node.children[i].name;
+                delete nodes[contextId];
+            }
+            node.children = [];
+        }
         delete nodes[i];
     }
     let connectionsToDelete = [];
@@ -280,6 +300,17 @@ class SavedNode
     {
         this.name = node.name;
         this.type = node.type;
+        this.children = [];
+        this.defaultConnectionType = node.defaultConnectionType;
+        this.defaultChildType = node.defaultChildType;
+        if(!node.isChild)
+        {
+            for(let i = 0; i < node.children.length; i++)
+            {
+                let child = new SavedNode(node.children[i]);
+                this.children.push(child);
+            }
+        }
         this.position = new Vector2(node.position.x, node.position.y);
         this.additionalInfo = {...node.additionalInfo};
         this.panels = [...node.panels];
@@ -294,6 +325,8 @@ function CopySelectedNodes()
     for(let i in tempSelectedNodes)
     {
         let node = tempSelectedNodes[i];
+        if(node.isChild && tempSelectedNodes[node.parent.name] == node.parent)
+            continue;
         let saved = new SavedNode(node);
         savedNodes.push(saved);
     }
@@ -309,6 +342,22 @@ function PasteSelectedNodes()
         let node = new Node(name, snode.type, snode.position.Plus(pasteOffset));
         node.additionalInfo = {...snode.additionalInfo};
         node.panels = [...snode.panels];
+        node.defaultConnectionType = snode.defaultConnectionType;
+        node.defaultChildType = snode.defaultChildType;
+        for(let j = 0; j < snode.children.length; j++)
+        {
+            let schild = snode.children[j];
+            let childName = GetLegalNodeName(schild.name);
+            let child = new Node(childName, schild.type, snode.position.Plus(pasteOffset));
+            child.additionalInfo = {...schild.additionalInfo};
+            child.panels = [...schild.panels];
+            child.defaultConnectionType = schild.defaultConnectionType;
+            child.defaultChildType = schild.defaultChildType;
+            node.children.push(child);
+            child.parent = node;
+            child.isChild = true;
+            nodes[childName] = child;
+        }
         nodes[name] = node;
         selectedNodes[name] = node;
     }

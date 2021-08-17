@@ -1,4 +1,4 @@
-div.node
+div.node, div.node-child
 {
     background: linear-gradient(90deg, rgba(9,9,121,1) 0%, rgba(28,28,187,1) 100%);
     border-radius: 1em;
@@ -6,8 +6,15 @@ div.node
     z-index: 8;
     text-align: center;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
+    flex-grow: 1;
+}
+div.node-child
+{
+    z-index: 9;
+    width: 100%;
 }
 div.connection-button
 {
@@ -27,7 +34,15 @@ div.node h3
     cursor: default;
     font-weight: 100;
 }
-div.node.selected
+div.node button
+{
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(0deg, rgb(58, 58, 58) 0%, rgb(126, 126, 126) 100%);
+    color: white;
+    width: 100%;
+}
+div.node.selected, div.node-child.selected
 {
     border-color: #8b8bff;
     border-style: none;

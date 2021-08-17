@@ -1,4 +1,5 @@
 const nodeClass = "node";
+const childNodeClass = "node-child";
 const connectionButtonClass = "connection-button";
 var defaultNodeType;
 document.addEventListener("mousedown", DeselectIfNotInNodeBounds);
@@ -77,9 +78,13 @@ class Node
         this.connectionsTo = [];
         this.connectionsFrom = [];
         this.additionalInfo = {};
+        this.children = [];
+        this.isChild = false;
+        this.parent = null;
         this.HTMLGridElement = null;
         this.HTMLLeftButton = null;
         this.HTMLRightButton = null;
+        this.HTMLDummyContainer = null;
         this.position = position;
         this.SetType(type);
     }
@@ -98,6 +103,7 @@ class Node
                 t = defaultNodeType;
             this.type = t.name;
             this.defaultConnectionType = t.defaultConnectionType;
+            this.defaultChildType = t.defaultChildType;
             this.RefreshPanels();
         }
     }
@@ -138,9 +144,12 @@ class Node
             this.HTMLGridElement = document.createElement("div");
             this.HTMLGridElement.className = nodeClass;
             this.HTMLGridElement.id=this.name;
-            this.HTMLGridElement.addEventListener("mousedown", OnNodeMouseDown);
-            this.HTMLGridElement.addEventListener("contextmenu", ContextMenuNode);
-            this.HTMLGridElement.addEventListener("wheel", function(event) {AdjustGridScale(event);})
+            if(this.isChild)
+            {
+                this.HTMLGridElement.addEventListener("mousedown", OnNodeMouseDown);
+                this.HTMLGridElement.addEventListener("contextmenu", ContextMenuNode);
+                this.HTMLGridElement.addEventListener("wheel", function(event) {AdjustGridScale(event);})
+            }
         }
         if(this.HTMLLeftButton == null)
         {
@@ -154,47 +163,125 @@ class Node
             this.HTMLRightButton.className = connectionButtonClass;
             this.HTMLRightButton.addEventListener("mousedown", StartNodeConnectionFromButton);
         }
-        let topLeft = position.Minus(divScale.Scale(1/2));
-        this.HTMLGridElement.style.position = "absolute";
-        this.HTMLGridElement.style.top = topLeft.y+"px";
-        this.HTMLGridElement.style.left = topLeft.x+"px";
-        this.HTMLGridElement.style.width = divScale.x+"px";
-        this.HTMLGridElement.style.minHeight = divScale.y+"px";
-        this.HTMLGridElement.style.borderRadius = (15*scale)+"px";
 
+        let classN = this.isChild ? childNodeClass : nodeClass;
         if(selectedNodes[this.name] != undefined)
-            this.HTMLGridElement.className = nodeClass + " selected";
+            this.HTMLGridElement.className = classN + " selected";
         else
-            this.HTMLGridElement.className = nodeClass;
+            this.HTMLGridElement.className = classN;
 
-        let leftButtonOffset = this.HTMLGridElement.className == nodeClass+" selected" ? 0 : 0;
+        if(!this.isChild)
+        {
+            let topLeft = position.Minus(divScale.Scale(1/2));
+            this.HTMLGridElement.style.position = "absolute";
+            this.HTMLGridElement.style.top = topLeft.y+"px";
+            this.HTMLGridElement.style.left = topLeft.x+"px";
+            this.HTMLGridElement.style.width = divScale.x+"px";
+            this.HTMLGridElement.style.minHeight = divScale.y+"px";
 
-        let leftButtonTopLeft = position.Minus(new Vector2(divScale.Scale(1/2).Plus(buttonScale).Plus(new Vector2(5 * scale,0)).x, buttonScale.y/2));
-        this.HTMLLeftButton.style.position = "absolute";
-        this.HTMLLeftButton.style.top = leftButtonTopLeft.y+"px";
-        this.HTMLLeftButton.style.left = leftButtonTopLeft.x+"px";
-        this.HTMLLeftButton.style.width = buttonScale.x+"px";
-        this.HTMLLeftButton.style.minHeight = buttonScale.y+"px";
-        this.HTMLLeftButton.style.borderRadius = 0+"px";
-        this.HTMLLeftButton.setAttribute("node-name", this.name);
-        
-        let rightButtonTopLeft = position.Plus(new Vector2((divScale.x / 2), -buttonScale.y/2))
-        this.HTMLRightButton.style.position = "absolute";
-        this.HTMLRightButton.style.top = rightButtonTopLeft.y+"px";
-        this.HTMLRightButton.style.left = rightButtonTopLeft.x+"px";
-        this.HTMLRightButton.style.width = buttonScale.x+"px";
-        this.HTMLRightButton.style.minHeight = buttonScale.y+"px";
-        this.HTMLRightButton.style.borderRadius = 0+"px";
-        this.HTMLRightButton.setAttribute("node-name", this.name);
+            this.HTMLDummyContainer = document.createElement("div");
+            this.HTMLDummyContainer.className = nodeClass;
+            this.HTMLDummyContainer.id = this.name;
+            this.HTMLDummyContainer.addEventListener("mousedown", OnNodeMouseDown);
+            this.HTMLDummyContainer.addEventListener("contextmenu", ContextMenuNode);
+            this.HTMLDummyContainer.addEventListener("wheel", function(event) {AdjustGridScale(event);})
+            this.HTMLDummyContainer.className = this.HTMLGridElement.className;
 
-        let nodeName = document.createElement("h3");
-        nodeName.innerHTML = this.name;
-        this.HTMLGridElement.style.fontSize = (scale*1)+"em";
-        this.HTMLGridElement.appendChild(nodeName);
+            let dummyName = document.createElement("h3");
+            dummyName.innerHTML = this.name;
 
-        if(this.HTMLGridElement.className == nodeClass+" selected")
+            this.HTMLDummyContainer.appendChild(dummyName);
+            this.HTMLGridElement.appendChild(this.HTMLDummyContainer);   
+            this.HTMLGridElement.style.fontSize = (scale*1)+"em";         
+        }
+        this.HTMLGridElement.style.borderRadius = (0*scale)+"px";
+
+        if(!this.isChild)
+        {
+            let leftButtonTopLeft = position.Minus(new Vector2(divScale.Scale(1/2).Plus(buttonScale).Plus(new Vector2(5 * scale,0)).x, buttonScale.y/2));
+            this.HTMLLeftButton.style.position = "absolute";
+            this.HTMLLeftButton.style.top = leftButtonTopLeft.y+"px";
+            this.HTMLLeftButton.style.left = leftButtonTopLeft.x+"px";
+            this.HTMLLeftButton.style.width = buttonScale.x+"px";
+            this.HTMLLeftButton.style.minHeight = buttonScale.y+"px";
+            this.HTMLLeftButton.setAttribute("node-name", this.name);
+            this.HTMLLeftButton.style.borderRadius = 0+"px";
+            
+            let rightButtonTopLeft = position.Plus(new Vector2((divScale.x / 2), -buttonScale.y/2));
+            this.HTMLRightButton.style.position = "absolute";
+            this.HTMLRightButton.style.top = rightButtonTopLeft.y+"px";
+            this.HTMLRightButton.style.left = rightButtonTopLeft.x+"px";
+            this.HTMLRightButton.style.width = buttonScale.x+"px";
+            this.HTMLRightButton.style.minHeight = buttonScale.y+"px";
+            this.HTMLRightButton.style.borderRadius = 0+"px";
+            this.HTMLRightButton.setAttribute("node-name", this.name);
+        }
+        else
+        {
+            let nodeName = document.createElement("h3");
+            nodeName.innerHTML = this.name;
+            this.HTMLGridElement.appendChild(nodeName);
+        }
+
+
+        if(!this.isChild)
+        {
+            let addChildButton = document.createElement("button");
+            addChildButton.innerHTML = "+ Add Child";
+            addChildButton.style.fontSize = "1em";
+            addChildButton.style.borderRadius = this.HTMLGridElement.style.borderRadius;
+            addChildButton.setAttribute("node-name", this.name);
+            addChildButton.addEventListener("mousedown", ClickedCreateChildButton);
+            this.HTMLGridElement.appendChild(addChildButton);
+
+            for(let i = 0; i < this.children.length; i++)
+            {
+                let child = this.children[i];
+                let element = child.DrawHTMLGrid()[0];
+                this.HTMLGridElement.appendChild(element);
+            }
+        }
+
+        if(this.HTMLGridElement.className == classN+" selected")
            this. HTMLGridElement.style.borderWidth = (5*scale)+"px";
         return [this.HTMLGridElement, this.HTMLLeftButton, this.HTMLRightButton];
+    }
+
+    RefreshConButtonsAndPositions(container, buttonScale)
+    {
+        let r = this.HTMLGridElement.getBoundingClientRect();
+        if(this.isChild)
+        {
+            let pos = new Vector2(r.x + r.width / 2, r.y + r.height / 2);
+            this.position = GetUnadjustedPosition(pos);
+            
+            let leftButtonTopLeft = new Vector2(r.x - buttonScale.x, r.y);
+            this.HTMLLeftButton.style.position = "absolute";
+            this.HTMLLeftButton.style.top = leftButtonTopLeft.y+"px";
+            this.HTMLLeftButton.style.left = leftButtonTopLeft.x+"px";
+            this.HTMLLeftButton.style.width = buttonScale.x+"px";
+            this.HTMLLeftButton.style.borderRadius = 0+"px";
+            this.HTMLLeftButton.setAttribute("node-name", this.name);
+
+            let rightButtonTopLeft = new Vector2(r.x + r.width, r.y);
+            this.HTMLRightButton.style.position = "absolute";
+            this.HTMLRightButton.style.top = rightButtonTopLeft.y+"px";
+            this.HTMLRightButton.style.left = rightButtonTopLeft.x+"px";
+            this.HTMLRightButton.style.width = buttonScale.x+"px";
+            this.HTMLRightButton.style.borderRadius = 0+"px";
+            this.HTMLRightButton.setAttribute("node-name", this.name);
+
+            container.appendChild(this.HTMLLeftButton);
+            container.appendChild(this.HTMLRightButton);
+        }
+        else
+        {
+            r = this.HTMLDummyContainer.getBoundingClientRect();
+            for(let i = 0; i < this.children.length; i++)
+                this.children[i].RefreshConButtonsAndPositions(container, buttonScale);
+        }
+        this.HTMLRightButton.style.minHeight = (r.height * 0.9)+"px";
+        this.HTMLLeftButton.style.minHeight = (r.height * 0.9)+"px";
     }
 }
 
@@ -225,6 +312,18 @@ function OnNodeMouseDown(event)
             MouseDownOnGrid(event);
             break;
     }
+}
+
+function ClickedCreateChildButton(event)
+{
+    let nodeName = event.target.getAttribute("node-name");
+    let n = FindNodeWithName(nodeName);
+    if(n == null || n == undefined)
+        return;
+    let t = GetNodeType(n.defaultChildType);
+    if(t == null || t == undefined)
+        t = defaultNodeType;
+    CreateChildNode(n, t.name);
 }
 
 function SelectNodeArea(event)
@@ -410,10 +509,15 @@ function EndConnection(event)
     document.removeEventListener("mousedown", EndConnection);
     document.removeEventListener("mouseup", EndConnection);
     connectingNodes = false;
+    if(event.button != 0)
+    {
+        DrawAllGrid();
+        return;
+    }
     let connectionToNode = GetNodeInBounds(event);
     if(connectionFromNode != null)
     {
-        if(connectionToNode != null && connectionFromNode.name != connectionToNode.name)
+        if(IsConnectionValid(connectionFromNode, connectionToNode))
         {
             if(connections[connectionFromNode.name+"->"+connectionToNode.name] != null)
                 return;
@@ -433,16 +537,34 @@ function EndConnection(event)
     DrawAllGrid();
 }
 
+function IsConnectionValid(from, to)
+{
+    if(from == null)
+        return false;
+    if(to == null)
+        return false;
+    if(from.name == to.name)
+        return false;
+    if(from.isChild && to == from.parent)
+        return false;
+    if(to.isChild && from == to.parent)
+        return false;
+    if(from.isChild && to.isChild && from.parent == to.parent)
+        return false;
+    return true;
+}
+
 function GetNodeInBounds(event)
 {
     let position = new Vector2(event.clientX, event.clientY);
     for(let i in nodes)
     {
         let currentNode = nodes[i];
-        if(currentNode != null && currentNode.HTMLGridElement != null && currentNode != connectionFromNode)
+        if(currentNode != null && (currentNode.HTMLGridElement != null || currentNode.HTMLDummyContainer != null) && currentNode != connectionFromNode)
         {
             rect = new Rect(null,null);
-            rect.SetFromRect(currentNode.HTMLGridElement.getBoundingClientRect());
+            let element = currentNode.isChild ? currentNode.HTMLGridElement : currentNode.HTMLDummyContainer;
+            rect.SetFromRect(element.getBoundingClientRect());
             if(rect.Contains(position))
                 return currentNode;
         }
@@ -469,6 +591,25 @@ function RemoveNode()
             connectionsToDelete[contextConnectionName] = contextConnectionName;
         }
         delete nodes[contextId];
+        if(target.isChild)
+        {
+            let parent = target.parent;
+            if(nodes[target.parent.name] == parent)
+            {
+                let targetIndex = parent.children.indexOf(target);
+                console.log(targetIndex);
+                if(targetIndex != -1)
+                    parent.children.splice(targetIndex, 1);
+            }
+        }
+        else
+        {
+            for(let i = 0; i < target.children.length; i++)
+            {
+                contextId = target.children[i].name;
+                RemoveNode();
+            }
+        }
         for(let i in connectionsToDelete)
         {
             contextConnectionName = i;
