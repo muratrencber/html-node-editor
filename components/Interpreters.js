@@ -97,9 +97,11 @@ function PanelScriptInterpreter()
     {
         let n = nodes[i];
         let tag = n.GetAdditionalInfo("tag");
+        let ntext = n.GetAdditionalInfo("text");
         if(tag != "panel-node")
             continue;
         result += "<PANEL id=\""+n.name+"\">\n";
+        result += "<text>"+ntext+"</text>\n";
         for(let j = 0; j < n.connectionsTo.length+n.children.length; j++)
         {
             let con = null;
@@ -114,7 +116,7 @@ function PanelScriptInterpreter()
             console.log(dntag);
             if(dntag == "dialogue-node")
             {
-                result += "<option>\n<text>"+dn.GetAdditionalInfo("text")+"</text>\n";
+                result += "<option>\n<text>"+dn.GetAdditionalInfo("text")+"</text>\n<id>"+dn.name+"</id>\n";
                 for(let k = 0; k < dn.connectionsTo.length; k++)
                 {
                     let con2 = dn.connectionsTo[k];
@@ -131,7 +133,7 @@ function PanelScriptInterpreter()
             }
             else if(dntag == "panel-node")
             {
-                result += "<option>\n<text></text>\n<transition id=\""+dn.name+"\">";
+                result += "<option>\n<text></text>\n<id></id>\n<transition id=\""+dn.name+"\">";
                 result += "</transition>\n";
             }
             for(let k = 0; k < con.conditions.length; k++)
