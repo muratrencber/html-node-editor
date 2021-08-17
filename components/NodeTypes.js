@@ -24,7 +24,7 @@ const nodeTypesDict =
     },
     "PanelNode":
     {
-        "panels":["name-field", "type-changer", "text-field"],
+        "panels":["name-field", "type-changer", "tags", "text-field"],
         "tag": "panel-node",
         "default-connection-node-type": "DialogueNode",
         "default-child-node-type": "DialogueNode"

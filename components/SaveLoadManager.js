@@ -131,7 +131,7 @@ function LoadFile()
                 for(let f = 0; f < serializedConnection.conditions.length; f++)
                 {
                     let serializedCondition = serializedConnection.conditions[f];
-                    connections[i].conditions.push(new Condition(serializedCondition.targetName, serializedCondition.targetValue, serializedCondition.targetType));
+                    connections[i].conditions.push(new Condition(serializedCondition.targetName, serializedCondition.targetValue, serializedCondition.conditionType));
                 }
 
                 fromNode.connectionsTo.push(connections[i]);
