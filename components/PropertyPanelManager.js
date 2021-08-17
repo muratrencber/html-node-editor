@@ -108,6 +108,7 @@ function DrawNodeProperties(nodes)
     let node = selectedNodes[keys[keys.length - 1]];
     let rightPanel = document.getElementById("right-panel");
     let panels = [];
+    let hasAnyParent = false;
     if(keys.length == 1)
     {
         panels = node.panels;
@@ -121,6 +122,8 @@ function DrawNodeProperties(nodes)
         for(let i in selectedNodes)
         {
             let n = selectedNodes[i];
+            if(!n.isChild)
+                hasAnyParent = true;
             for(let f = 0; f < n.panels.length; f++)
             {
                 if(panelCounts[n.panels[f]] == undefined)
@@ -131,6 +134,8 @@ function DrawNodeProperties(nodes)
         }
         for(let i in panelCounts)
         {
+            if(i == "default-child-type-changer" && !hasAnyParent)
+                continue;
             if(panelCounts[i] == keys.length && !multipleEditNotSupportedPanels.includes(i))
                 panels.push(i);
         }
@@ -351,6 +356,51 @@ function CreateCustomPanel(node, panelKey)
         else
             node.SetAdditionalInfo("tag", nodeTags[0]);
         select.setAttribute("onchange", "ChangeNodeTags(this)");
+        divWrapper.appendChild(select);
+    }
+    else if(panelKey == "default-connection-type-changer")
+    {
+        let label = document.createElement("h4");
+        label.innerHTML = "Default Connection Node Type:";
+        let select = document.createElement("select");
+        select.setAttribute("node-name", node.name);
+        let types = [...nodeTypes];
+        types.push(new NodeType("Choose", []));
+        for(let i = 0; i < types.length; i++)
+        {
+            let option = document.createElement("option");
+            option.value = types[i].name;
+            option.innerHTML = types[i].name;
+            select.appendChild(option);
+        }
+        let defVal = node.defaultConnectionType;
+        if(defVal == "")
+            defVal = "Choose";
+        select.value = defVal;
+        select.setAttribute("onchange", "ChangeNodeConnectionType(this)");
+        divWrapper.appendChild(label);
+        divWrapper.appendChild(select);
+    }
+    else if(panelKey == "default-child-type-changer")
+    {
+        let label = document.createElement("h4");
+        label.innerHTML = "Default Child Node Type:";
+        let select = document.createElement("select");
+        select.setAttribute("node-name", node.name);
+        let types = [...nodeTypes];
+        for(let i = 0; i < types.length; i++)
+        {
+            let option = document.createElement("option");
+            option.value = types[i].name;
+            option.innerHTML = types[i].name;
+            select.appendChild(option);
+        }
+        let defVal = node.defaultChildType;
+        if(defVal == "")
+            defVal = defaultNodeType.name;
+        select.value = defVal;
+        select.setAttribute("onchange", "ChangeNodeChildType(this)");
+        divWrapper.appendChild(label);
         divWrapper.appendChild(select);
     }
     else

@@ -8,8 +8,10 @@
 
 var panels = ["name-field", "type-changer", "text-field", "variable-changer", "node-text-changer", "tags"];
 var nodeTags = ["dialogue-node", "panel-node"]
-var nonRemoveablePanels = ["name-field", "type-changer"];
-const forbiddenTypeNames = ["CustomNode", ""];
+var nonRemoveablePanels = ["name-field", "type-changer", "default-connection-type-changer", "default-child-type-changer"];
+
+const multipleEditNotSupportedPanels = ["name-field"];
+const forbiddenTypeNames = ["CustomNode", "Choose", ""];
 
 const nodeTypesDict = 
 {
@@ -61,5 +63,3 @@ const nodeTypesText =
     text-field;
     variable-changer;
 }`;
-
-const multipleEditNotSupportedPanels = ["name-field"];

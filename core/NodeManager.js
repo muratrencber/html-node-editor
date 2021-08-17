@@ -114,10 +114,26 @@ class Node
         if(t == null || t == undefined)
             t = defaultNodeType;
         if(this.type == "CustomNode")
+        {
+            this.AddEssentialPanels();
             return;
+        }
         this.panels = [];
+        this.AddEssentialPanels();
         for(let i = 0; i < t.panels.length; i++)
-            this.panels.push(t.panels[i]);
+        {
+            if(!this.panels.includes(t.panels[i]))
+                this.panels.push(t.panels[i]);
+        }
+    }
+
+    AddEssentialPanels()
+    {
+        for(let i = 0; i < nonRemoveablePanels.length; i++)
+        {
+            if(!this.panels.includes(nonRemoveablePanels[i]))
+                this.panels.push(nonRemoveablePanels[i]);
+        }
     }
 
     SetAdditionalInfo(key, value)

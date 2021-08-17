@@ -6,14 +6,35 @@ function ChangeNodeType(select)
         if(node != null && node != undefined)
         {
             node.SetType(select.value);
-            /*node.type = select.value;
-            if(node.type != "CustomNode")
-            {
-                node.panels = [];
-                let type = GetNodeType(select.value);
-                for(let f = 0; f < type.panels.length; f++)
-                    node.panels.push(type.panels[f]);
-            }*/
+        }
+    }
+    DrawProperties();
+}
+
+function ChangeNodeConnectionType(select)
+{
+    for(let i in selectedNodes)
+    {
+        let node = selectedNodes[i];
+        if(node != null && node != undefined)
+        {
+            let val = select.value;
+            if(val == "Choose")
+                val = "";
+            node.defaultConnectionType = val;
+        }
+    }
+    DrawProperties();
+}
+
+function ChangeNodeChildType(select)
+{
+    for(let i in selectedNodes)
+    {
+        let node = selectedNodes[i];
+        if(node != null && node != undefined)
+        {
+            node.defaultChildType = select.value;
         }
     }
     DrawProperties();
