@@ -217,6 +217,7 @@ function CreateCustomPanel(node, panelKey)
         textField.setAttribute("rows", 4);
         textField.setAttribute("cols", 30);
         textField.setAttribute("onchange", "AddTextToNode(this)");
+        textField.setAttribute("onkeyup", "AddTextToNode(this, false)");
         divWrapper.appendChild(label);
         divWrapper.appendChild(textField);
     }

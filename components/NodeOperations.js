@@ -118,7 +118,7 @@ function ShowPanelContext(event)
     OpenContextMenu(mousePosition, availablePanels, panelFunctions);
 }
 
-function AddTextToNode(textArea)
+function AddTextToNode(textArea, draw = true)
 {
     let text = textArea.value;
     for(let i in selectedNodes)
@@ -126,7 +126,8 @@ function AddTextToNode(textArea)
         let node = selectedNodes[i];
         node.SetAdditionalInfo("text", text);
     }
-    DrawProperties();
+    if(draw)
+        DrawProperties();
 }
 
 function AddVariablesToChange(selectOrInput)
@@ -271,6 +272,15 @@ function SyncSelectedConnections(connectionToCopy)
 
 function RemoveSelectedNodes()
 {
+    let nsToAdd = [];
+    for(let i in selectedNodes)
+    {
+        let node = selectedNodes[i];
+        for(let j = 0; j < node.children.length; j++)
+            nsToAdd.push(node.children[j]);
+    }
+    for(let i = 0; i < nsToAdd.length; i++)
+        selectedNodes[nsToAdd[i].name] = nsToAdd[i];
     for(let i in selectedNodes)
     {
         let node = selectedNodes[i];
@@ -281,7 +291,6 @@ function RemoveSelectedNodes()
             if(nodes[node.parent.name] == parent)
             {
                 let targetIndex = parent.children.indexOf(node);
-                console.log(targetIndex);
                 if(targetIndex != -1)
                     parent.children.splice(targetIndex, 1);
             }

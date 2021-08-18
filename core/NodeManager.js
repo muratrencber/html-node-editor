@@ -104,6 +104,10 @@ class Node
             this.type = t.name;
             this.defaultConnectionType = t.defaultConnectionType;
             this.defaultChildType = t.defaultChildType;
+            if(t.tag != "")
+            {
+                this.SetAdditionalInfo("tag", t.tag);
+            }
             this.RefreshPanels();
         }
     }
